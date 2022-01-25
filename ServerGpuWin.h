@@ -42,8 +42,14 @@ class ServerGpuWin : public QWidget
     Q_OBJECT
 
 public:
-    explicit ServerGpuWin(QWidget *parent = nullptr);
+    explicit ServerGpuWin(QWidget *parent = nullptr, const QString& strServerIp="");
     ~ServerGpuWin();
+
+    QString GetServerIp();
+
+signals:
+    void sigServerIp(const QString& strServerIp);
+    void sigGpuUsedRate(const QString& strGpuUsedRate);
 
 private:
     void UpdateUi(const QMap<int, GpuInfo>& mapGpuInfo);

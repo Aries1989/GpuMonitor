@@ -13,7 +13,7 @@
 
 using json = nlohmann::json;
 
-ServerGpuWin::ServerGpuWin(QWidget *parent) :
+ServerGpuWin::ServerGpuWin(QWidget *parent, const QString& strServerIp) :
     QWidget(parent),
     ui(new Ui::ServerGpuWin),
     m_pNetWork(nullptr),
@@ -39,11 +39,23 @@ ServerGpuWin::ServerGpuWin(QWidget *parent) :
 
         m_pNetWork->get(QNetworkRequest(request));
     });
+
+    if (!strServerIp.isEmpty())
+    {
+        ui->edtIp->setText(strServerIp);
+
+        on_btnUpdate_clicked();
+    }
 }
 
 ServerGpuWin::~ServerGpuWin()
 {
     delete ui;
+}
+
+QString ServerGpuWin::GetServerIp()
+{
+    return ui->edtIp->text();
 }
 
 void ServerGpuWin::UpdateUi(const QMap<int, GpuInfo> &mapGpuInfo)
@@ -122,6 +134,7 @@ void ServerGpuWin::UpdateUi(const QMap<int, GpuInfo> &mapGpuInfo)
         ui->table->setItem(iRow, 3, item3);
 
         QTableWidgetItem* item4 = new QTableWidgetItem(p.strUser);
+        item4->setData(Qt::TextAlignmentRole, Qt::AlignCenter);
         ui->table->setItem(iRow, 4, item4);
 
         QTableWidgetItem* item5 = new QTableWidgetItem(p.strName);
@@ -131,6 +144,8 @@ void ServerGpuWin::UpdateUi(const QMap<int, GpuInfo> &mapGpuInfo)
     }
 
     ui->lbUpdateTime->setText(QTime::currentTime().toString("hh:mm:ss"));
+
+    sigGpuUsedRate("(" + QString::number(info.fRate*100.0, 'f', 0) + "%)");
 }
 
 void ServerGpuWin::on_btnUpdate_clicked()
@@ -144,6 +159,8 @@ void ServerGpuWin::on_btnUpdate_clicked()
     {
         m_pTimer->start();
         ui->btnUpdate->setText("stop");
+
+        emit sigServerIp(ui->edtIp->text());
     }
 }
 
